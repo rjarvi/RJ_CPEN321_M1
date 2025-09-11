@@ -8,10 +8,11 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    command: --quiet
 
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: dockerfile
       args:
         - PORT=${PORT}
