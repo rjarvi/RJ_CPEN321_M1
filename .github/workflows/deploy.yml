@@ -37,7 +37,7 @@ jobs:
             # Write secrets into .env
             cat > .env <<EOF
             PORT=${{secrets.PROD_PORT}}
-            DB_URI=${{secrets.PROD_DB_URI}}
+            MONGODB_URI=${{secrets.PROD_DB_URI}}
             EOF
             
             #give .env perms
