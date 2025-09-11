@@ -22,8 +22,8 @@ jobs:
           host: ${{secrets.EC2_HOST}}
           username: ${{secrets.EC2_USER}}
           key: ${{secrets.EC2_KEY}}
-          source: "backend/*"
-          target: "/home/ubuntu/RJ_CPEN321_M1/backend" 
+          source: "backend"
+          target: "/home/ubuntu/RJ_CPEN321_M1" 
 
       - name: Rebuild and Deploy
         uses: appleboy/ssh-action@master
