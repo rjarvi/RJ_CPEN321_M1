@@ -27,6 +27,15 @@ class NewsViewModel : ViewModel() {
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
     fun fetchNews(hobbies: List<String>) {
+        if (hobbies.isEmpty()) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = false,
+                newsData = emptyList(),
+                jsonString = "",
+                error = null
+            )
+            return
+        }
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
@@ -51,5 +60,9 @@ class NewsViewModel : ViewModel() {
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
+    }
+
+    fun clearData() {
+        _uiState.value = NewsUiState()
     }
 }
