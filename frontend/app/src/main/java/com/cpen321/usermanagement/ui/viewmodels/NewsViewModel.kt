@@ -11,17 +11,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 
 data class NewsUiState(
     val isLoading: Boolean = false,
     val jsonString: String = "",
-    val error: String? = null
+    val error: String? = null,
+    val newsData: List<HobbyNews> = emptyList()
 )
 
-@HiltViewModel
-class NewsViewModel @Inject constructor() : ViewModel() {
+class NewsViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(NewsUiState())
     val uiState: StateFlow<NewsUiState> = _uiState.asStateFlow()
@@ -35,10 +33,11 @@ class NewsViewModel @Inject constructor() : ViewModel() {
             try {
                 val request = NewsRequest(hobbies = hobbies)
                 val response = RetrofitClient.newsInterface.getNewsByHobbies(request)
-                val jsonString = gson.toJson(response.results) // Extract the results array
+                val jsonString = gson.toJson(response.results)
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    newsData = response.results,
                     jsonString = jsonString
                 )
             } catch (e: Exception) {
