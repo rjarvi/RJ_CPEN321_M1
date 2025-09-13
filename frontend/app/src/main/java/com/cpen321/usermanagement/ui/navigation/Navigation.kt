@@ -171,6 +171,22 @@ private fun MainScreenWithHobbies(
         selectedHobbies = selectedHobbies,
         onProfileClick = onProfileClick
     )
+}@Composable
+private fun MainScreenWithHobbies(
+    mainViewModel: MainViewModel,
+    newsViewModel: NewsViewModel,
+    profileViewModel: ProfileViewModel,
+    onProfileClick: () -> Unit
+) {
+    val uiState by profileViewModel.uiState.collectAsState()
+    val selectedHobbies = uiState.selectedHobbies.toList()
+
+    MainScreen(
+        mainViewModel = mainViewModel,
+        newsViewModel = newsViewModel,
+        selectedHobbies = selectedHobbies,
+        onProfileClick = onProfileClick
+    )
 }
 @Composable
 private fun AppNavHost(
