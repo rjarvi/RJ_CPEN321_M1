@@ -29,10 +29,13 @@ import com.cpen321.usermanagement.ui.viewmodels.MainUiState
 import com.cpen321.usermanagement.ui.viewmodels.MainViewModel
 import com.cpen321.usermanagement.ui.theme.LocalFontSizes
 import com.cpen321.usermanagement.ui.theme.LocalSpacing
+import com.cpen321.usermanagement.ui.viewmodels.NewsViewModel
 
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
+    newsViewModel: NewsViewModel,
+    selectedHobbies: List<String>,
     onProfileClick: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
@@ -40,15 +43,18 @@ fun MainScreen(
 
     MainContent(
         uiState = uiState,
+        newsViewModel = newsViewModel,
+        selectedHobbies = selectedHobbies,
         snackBarHostState = snackBarHostState,
         onProfileClick = onProfileClick,
         onSuccessMessageShown = mainViewModel::clearSuccessMessage
     )
 }
-
 @Composable
 private fun MainContent(
     uiState: MainUiState,
+    newsViewModel: NewsViewModel,
+    selectedHobbies: List<String>,
     snackBarHostState: SnackbarHostState,
     onProfileClick: () -> Unit,
     onSuccessMessageShown: () -> Unit,
@@ -67,9 +73,14 @@ private fun MainContent(
             )
         }
     ) { paddingValues ->
-        MainBody(paddingValues = paddingValues)
+        MainBody(
+            paddingValues = paddingValues,
+            newsViewModel = newsViewModel,
+            selectedHobbies = selectedHobbies
+        )
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,18 +159,19 @@ private fun MainSnackbarHost(
 @Composable
 private fun MainBody(
     paddingValues: PaddingValues,
+    newsViewModel: NewsViewModel,
+    selectedHobbies: List<String>,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    // Show NewsScreen instead of welcome message
+    NewsScreen(
+        newsViewModel = newsViewModel,
+        selectedHobbies = selectedHobbies,
         modifier = modifier
             .fillMaxSize()
-            .padding(paddingValues),
-        contentAlignment = Alignment.Center
-    ) {
-        WelcomeMessage()
-    }
+            .padding(paddingValues)
+    )
 }
-
 @Composable
 private fun WelcomeMessage(
     modifier: Modifier = Modifier

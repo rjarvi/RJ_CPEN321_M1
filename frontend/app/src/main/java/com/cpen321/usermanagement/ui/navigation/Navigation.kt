@@ -23,6 +23,7 @@ import com.cpen321.usermanagement.ui.screens.ProfileScreen
 import com.cpen321.usermanagement.ui.viewmodels.AuthViewModel
 import com.cpen321.usermanagement.ui.viewmodels.MainViewModel
 import com.cpen321.usermanagement.ui.viewmodels.NavigationViewModel
+import com.cpen321.usermanagement.ui.viewmodels.NewsViewModel
 import com.cpen321.usermanagement.ui.viewmodels.ProfileViewModel
 
 object NavRoutes {
@@ -47,6 +48,7 @@ fun AppNavigation(
     val authViewModel: AuthViewModel = hiltViewModel()
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val mainViewModel: MainViewModel = hiltViewModel()
+    val newsViewModel: NewsViewModel = hiltViewModel()
 
     // Handle navigation events from NavigationStateManager
     LaunchedEffect(navigationEvent) {
@@ -64,7 +66,8 @@ fun AppNavigation(
         authViewModel = authViewModel,
         profileViewModel = profileViewModel,
         mainViewModel = mainViewModel,
-        navigationStateManager = navigationStateManager
+        navigationStateManager = navigationStateManager,
+        newsViewModel = newsViewModel
     )
 }
 
@@ -143,13 +146,30 @@ private fun handleNavigationEvent(
         }
     }
 }
+@Composable
+private fun MainScreenWithHobbies(
+    mainViewModel: MainViewModel,
+    newsViewModel: NewsViewModel,
+    profileViewModel: ProfileViewModel,
+    onProfileClick: () -> Unit
+) {
+    val uiState by profileViewModel.uiState.collectAsState()
+    val selectedHobbies = uiState.selectedHobbies.toList()
 
+    MainScreen(
+        mainViewModel = mainViewModel,
+        newsViewModel = newsViewModel,
+        selectedHobbies = selectedHobbies,
+        onProfileClick = onProfileClick
+    )
+}
 @Composable
 private fun AppNavHost(
     navController: NavHostController,
     authViewModel: AuthViewModel,
     profileViewModel: ProfileViewModel,
     mainViewModel: MainViewModel,
+    newsViewModel: NewsViewModel,
     navigationStateManager: NavigationStateManager
 ) {
     NavHost(
@@ -176,8 +196,10 @@ private fun AppNavHost(
         }
 
         composable(NavRoutes.MAIN) {
-            MainScreen(
+            MainScreenWithHobbies(
                 mainViewModel = mainViewModel,
+                newsViewModel = newsViewModel,
+                profileViewModel = profileViewModel,
                 onProfileClick = { navigationStateManager.navigateToProfile() }
             )
         }
