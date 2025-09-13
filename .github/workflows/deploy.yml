@@ -39,6 +39,7 @@ jobs:
             MONGODB_URI=${{secrets.PROD_DB_URI}}
             GOOGLE_CLIENT_ID=${{secrets.GOOGLE_CLIENT_ID}}
             JWT_SECRET=${{secrets.JWT_SECRET}}
+            NEWS_API_KEY=${{secrets.NEWS_API_KEY}}
             EOF
             
             #give .env perms

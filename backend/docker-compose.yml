@@ -21,6 +21,7 @@ services:
     environment:
       - DB_URI=${MONGODB_URI}
       - PORT=${PORT}
+      - NEWS_API_KEY=${NEWS_API_KEY}
     ports:
       - "${PORT}:${PORT}"
     depends_on:
