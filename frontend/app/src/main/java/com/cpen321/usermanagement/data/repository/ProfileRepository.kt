@@ -1,6 +1,5 @@
 package com.cpen321.usermanagement.data.repository
 
-import android.net.Uri
 import com.cpen321.usermanagement.data.remote.dto.User
 
 interface ProfileRepository {

@@ -157,14 +157,11 @@ class ProfileViewModel @Inject constructor(
     fun uploadProfilePicture(pictureUri: Uri, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
 
-            val currentUser = _uiState.value.user ?: return@launch
             setLoadingPhoto(true)
 
             try {
                 // Convert URI to string (for Google Drive / external URL)
-                val uploadResult = uploadProfileFile(pictureUri, context)
-
-                val newProfilePictureUrl = uploadResult.toString()
+                val newProfilePictureUrl = uploadProfileFile(pictureUri, context)
 
                 // Create the request body
                 val result = profileRepository.updateProfilePicture(profilePictureUrl = newProfilePictureUrl)
@@ -212,7 +209,7 @@ class ProfileViewModel @Inject constructor(
             val response = RetrofitClient.imageInterface.uploadPicture("", body) //auth handled by interceptor
 
             if (response.isSuccessful && response.body()?.data != null) {
-                return response.body()!!.data?.image.toString();
+                return response.body()!!.data?.image.toString()
             } else {
                 val errorBody = response.errorBody()?.string()
                 throw Exception("Failed to upload profile picture: $errorBody")
