@@ -1,21 +1,15 @@
 package com.cpen321.usermanagement.data.repository
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import com.cpen321.usermanagement.data.local.preferences.TokenManager
 import com.cpen321.usermanagement.data.remote.api.HobbyInterface
-import com.cpen321.usermanagement.data.remote.api.ImageInterface
 import com.cpen321.usermanagement.data.remote.api.RetrofitClient
 import com.cpen321.usermanagement.data.remote.api.UserInterface
 import com.cpen321.usermanagement.data.remote.dto.UpdateProfileRequest
 import com.cpen321.usermanagement.data.remote.dto.User
 import com.cpen321.usermanagement.utils.JsonUtils.parseErrorMessage
-import com.cpen321.usermanagement.utils.MediaUtils.uriToFile
 import dagger.hilt.android.qualifiers.ApplicationContext
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -83,6 +77,33 @@ class ProfileRepositoryImpl @Inject constructor(
             Result.failure(e)
         } catch (e: retrofit2.HttpException) {
             Log.e(TAG, "HTTP error while updating profile: ${e.code()}", e)
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateProfilePicture(profilePictureUrl: String): Result<User> {
+        return try {
+            val updateRequest = UpdateProfileRequest(profilePicture = profilePictureUrl)
+            val response = userInterface.updateProfile("", updateRequest) // Auth header handled by interceptor
+            if (response.isSuccessful && response.body()?.data != null) {
+                Result.success(response.body()!!.data!!.user)
+            } else {
+                val errorBodyString = response.errorBody()?.string()
+                val errorMessage = parseErrorMessage(errorBodyString, "Failed to update profile picture.")
+                Log.e(TAG, "Failed to update profile picture: $errorMessage")
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: java.net.SocketTimeoutException) {
+            Log.e(TAG, "Network timeout while updating profile picture", e)
+            Result.failure(e)
+        } catch (e: java.net.UnknownHostException) {
+            Log.e(TAG, "Network connection failed while updating profile picture", e)
+            Result.failure(e)
+        } catch (e: java.io.IOException) {
+            Log.e(TAG, "IO error while updating profile picture", e)
+            Result.failure(e)
+        } catch (e: retrofit2.HttpException) {
+            Log.e(TAG, "HTTP error while updating profile picture: ${e.code()}", e)
             Result.failure(e)
         }
     }

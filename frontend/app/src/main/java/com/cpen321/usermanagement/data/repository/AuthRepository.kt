@@ -14,4 +14,5 @@ interface AuthRepository {
     suspend fun getStoredToken(): String?
     suspend fun getCurrentUser(): User?
     suspend fun isUserAuthenticated(): Boolean
+    suspend fun deleteAccount(): Result<Unit>
 }

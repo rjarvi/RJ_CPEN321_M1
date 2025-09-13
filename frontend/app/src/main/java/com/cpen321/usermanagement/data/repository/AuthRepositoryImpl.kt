@@ -201,4 +201,15 @@ class AuthRepositoryImpl @Inject constructor(
         }
         return false
     }
+
+    override suspend fun deleteAccount(): Result<Unit> {
+        return try {
+            val response = userInterface.deleteProfile("")
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Failed to delete account"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

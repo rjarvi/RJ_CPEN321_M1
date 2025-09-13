@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 
 import { connectDB } from './database';
-import { errorHandler, notFoundHandler } from './errorHandler.middleware';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.middleware';
 import router from './routes';
 import path from 'path';
 

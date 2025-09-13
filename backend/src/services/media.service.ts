@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { IMAGES_DIR } from './hobbies';
+import { IMAGES_DIR } from '../hobbies';
 
 export class MediaService {
   static async saveImage(filePath: string, userId: string): Promise<string> {
@@ -23,11 +23,9 @@ export class MediaService {
 
   static async deleteImage(url: string): Promise<void> {
     try {
-      if (url.startsWith(IMAGES_DIR)) {
-        const filePath = path.join(process.cwd(), url.substring(1));
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
+      const filePath = path.join(process.cwd(),IMAGES_DIR, url);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
     } catch (error) {
       console.error('Failed to delete old profile picture:', error);
@@ -45,7 +43,7 @@ export class MediaService {
 
       await Promise.all(userFiles.map(file => this.deleteImage(file)));
     } catch (error) {
-      console.error('Failed to delete user images:', error);
+      console.error('Failed to delete user images:', error); 
     }
   }
 }

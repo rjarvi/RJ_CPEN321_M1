@@ -1,16 +1,23 @@
 package com.cpen321.usermanagement.ui.viewmodels
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cpen321.usermanagement.data.remote.api.RetrofitClient
 import com.cpen321.usermanagement.data.remote.dto.User
 import com.cpen321.usermanagement.data.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 
 data class ProfileUiState(
@@ -31,7 +38,8 @@ data class ProfileUiState(
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     companion object {
@@ -146,11 +154,68 @@ class ProfileViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isLoadingPhoto = isLoading)
     }
 
-    fun uploadProfilePicture(pictureUri: Uri) {
+    fun uploadProfilePicture(pictureUri: Uri, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
-            val currentUser = _uiState.value.user ?: return@launch
-            val updatedUser = currentUser.copy(profilePicture = pictureUri.toString())
-            _uiState.value = _uiState.value.copy(isLoadingPhoto = false, user= updatedUser, successMessage = "Profile picture updated successfully!")
+
+            setLoadingPhoto(true)
+
+            try {
+                // Convert URI to string (for Google Drive / external URL)
+                val newProfilePictureUrl = uploadProfileFile(pictureUri, context)
+
+                // Create the request body
+                val result = profileRepository.updateProfilePicture(profilePictureUrl = newProfilePictureUrl)
+
+                if (result.isSuccess) {
+                    val updatedUser = result.getOrNull()!!
+                    _uiState.value = _uiState.value.copy(
+                        isSavingProfile = false,
+                        user = updatedUser,
+                        successMessage = "Profile updated successfully!"
+                    )
+                    onSuccess()
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isLoadingPhoto = false,
+                        errorMessage = "Failed to update profile picture"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update profile picture", e)
+                _uiState.value = _uiState.value.copy(
+                    isLoadingPhoto = false,
+                    errorMessage = "Failed to update profile picture"
+                )
+            }
+        }
+    }
+
+    suspend fun uploadProfileFile(pictureUri: Uri, context: Context): String {
+        setLoadingPhoto(true)
+        try {
+            // Open input stream from the URI
+            val inputStream = context.contentResolver.openInputStream(pictureUri)
+                ?: throw IllegalArgumentException("Cannot open URI")
+
+            // Copy to a temp file
+            val tempFile = File.createTempFile("profile_pic", ".jpg", context.cacheDir)
+            inputStream.use { input -> tempFile.outputStream().use { output -> input.copyTo(output) } }
+
+            // Create MultipartBody
+            val requestFile = tempFile.asRequestBody("image/*".toMediaType())
+            val body = MultipartBody.Part.createFormData("media", tempFile.name, requestFile)
+
+            // Upload
+            val response = RetrofitClient.imageInterface.uploadPicture("", body) //auth handled by interceptor
+
+            if (response.isSuccessful && response.body()?.data != null) {
+                return response.body()!!.data?.image.toString()
+            } else {
+                val errorBody = response.errorBody()?.string()
+                throw Exception("Failed to upload profile picture: $errorBody")
+            }
+        } finally {
+            setLoadingPhoto(false)
         }
     }
 
