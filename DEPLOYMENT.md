@@ -2,6 +2,6 @@
 
 ## Deployment info
 
-The public IP of your back-end server: [SERVER_PUBLIC_IP]
+The public IP of your back-end server: 18.221.196.3
 
-Domain name (if any): [SERVER_PUBLIC_NAME_OR_EMPTY]
+Domain name (if any): ec2-18-221-196-3.us-east-2.compute.amazonaws.com
